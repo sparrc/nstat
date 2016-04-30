@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/sparrc/nstat"
 )
@@ -30,8 +31,15 @@ func main() {
 		}
 	}
 
-	for counter, value := range c.Get() {
-		fmt.Printf("%-32s %d\n", counter, value)
+	counters := c.Get()
+	sortedKeys := []string{}
+	for key, _ := range counters {
+		sortedKeys = append(sortedKeys, key)
+	}
+	sort.Strings(sortedKeys)
+
+	for _, key := range sortedKeys {
+		fmt.Printf("%-32s %d\n", key, counters[key])
 	}
 }
 
