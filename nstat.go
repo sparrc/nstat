@@ -94,15 +94,19 @@ func (c *Counters) parseUglyFile(file []byte) {
 		prefix := bytes.TrimSuffix(headers[0], []byte(":"))
 		metrics := bytes.Fields(lines[i+1])
 		for j := 1; j < len(headers); j++ {
-			if !c.DumpZeros {
-				// skip a zero counter
-				if bytes.Equal(metrics[j], zeroByte) {
+			// counter is zero
+			if bytes.Equal(metrics[j], zeroByte) {
+				if !c.DumpZeros {
+					continue
+				} else {
+					c.counters[string(append(prefix, headers[j]...))] = 0
 					continue
 				}
 			}
+			// the counter is not zero, so parse it.
 			value, err = strconv.ParseInt(string(metrics[j]), 10, 64)
 			if err == nil {
-				c.counters[string(prefix)+string(headers[j])] = value
+				c.counters[string(append(prefix, headers[j]...))] = value
 			}
 		}
 	}
@@ -114,12 +118,16 @@ func (c *Counters) parseNiceFile(file []byte) {
 	var value int64
 	var err error
 	for i := 0; i < len(fields); i = i + 2 {
-		if !c.DumpZeros {
-			// skip a zero counter
-			if bytes.Equal(fields[i+1], zeroByte) {
+		// counter is zero
+		if bytes.Equal(fields[i+1], zeroByte) {
+			if !c.DumpZeros {
+				continue
+			} else {
+				c.counters[string(fields[i])] = 0
 				continue
 			}
 		}
+		// the counter is not zero, so parse it.
 		value, err = strconv.ParseInt(string(fields[i+1]), 10, 64)
 		if err == nil {
 			c.counters[string(fields[i])] = value
