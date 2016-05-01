@@ -26,10 +26,7 @@ func proc(path string) string {
 type Counters struct {
 	DumpZeros bool
 
-	netstatFile []byte
-	snmpFile    []byte
-	snmp6File   []byte
-	counters    map[string]int64
+	counters map[string]int64
 }
 
 func (c *Counters) Get() map[string]int64 {
@@ -44,40 +41,37 @@ func (c *Counters) Get() map[string]int64 {
 
 // Read /proc/net/netstat and apply counters to given map
 func (c *Counters) readProcNetstat() {
-	var err error
 	fd, err := os.Open(proc(NET_NETSTAT))
 	if err != nil {
 		return
 	}
 	defer fd.Close()
-	if c.netstatFile, err = ioutil.ReadAll(fd); err == nil {
-		c.parseUglyFile(c.netstatFile)
+	if netstatFile, err := ioutil.ReadAll(fd); err == nil {
+		c.parseUglyFile(netstatFile)
 	}
 }
 
 // Read /proc/net/snmp and apply counters to given map
 func (c *Counters) readProcNetSnmp() {
-	var err error
 	fd, err := os.Open(proc(NET_SNMP))
 	if err != nil {
 		return
 	}
 	defer fd.Close()
-	if c.snmpFile, err = ioutil.ReadAll(fd); err == nil {
-		c.parseUglyFile(c.snmpFile)
+	if snmpFile, err := ioutil.ReadAll(fd); err == nil {
+		c.parseUglyFile(snmpFile)
 	}
 }
 
 // Read /proc/net/snmp6 and apply counters to given map
 func (c *Counters) readProcNetSnmp6() {
-	var err error
 	fd, err := os.Open(proc(NET_SNMP6))
 	if err != nil {
 		return
 	}
 	defer fd.Close()
-	if c.snmp6File, err = ioutil.ReadAll(fd); err == nil {
-		c.parseNiceFile(c.snmp6File)
+	if snmp6File, err := ioutil.ReadAll(fd); err == nil {
+		c.parseNiceFile(snmp6File)
 	}
 }
 
